@@ -1,0 +1,21 @@
+{
+    "name": "ParFlow CUAHSI VU",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+    "otherPortsAttributes": {
+        "onAutoForward": "ignore"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-toolsai.jupyter"
+            ]
+        }
+    },
+    "postCreateCommand": "python -m ipykernel install --user --name parflow-cuahsi-vu --display-name \"Python (ParFlow)\"",
+    "remoteUser": "ubuntu"
+}
