@@ -16,6 +16,6 @@
             ]
         }
     },
-    "postCreateCommand": "sudo mkdir -p /workspaces/my_work && sudo chown ubuntu:ubuntu /workspaces/my_work && python -m ipykernel install --user --name parflow-cuahsi-vu --display-name \"Python (ParFlow)\"",
+    "postCreateCommand": "python -m ipykernel install --user --name parflow-cuahsi-vu --display-name \"Python (ParFlow)\"",
     "remoteUser": "ubuntu"
 }

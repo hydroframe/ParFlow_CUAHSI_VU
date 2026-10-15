@@ -35,8 +35,7 @@ RUN apt-get update && \
 RUN getent group ubuntu >/dev/null || groupadd -g 1000 ubuntu && \
     id -u ubuntu >/dev/null 2>&1 || useradd -u 1000 -g ubuntu -m -N -s /bin/bash ubuntu
 
-# Passwordless sudo, so postCreateCommand can make my_work in the root-owned
-# /workspaces
+# Passwordless sudo, so users can install extra system packages
 RUN echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu && \
     chmod 0440 /etc/sudoers.d/ubuntu
 

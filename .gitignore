@@ -218,3 +218,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Students' own work (the folder itself is kept by my_work/.gitkeep)
+my_work/*
+!my_work/.gitkeep
