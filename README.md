@@ -24,8 +24,24 @@ your own computer.  All you need is a GitHub account and a web browser
    the start of class.  After the first launch, reopening the same Codespace
    takes under a minute.
 
-When it is ready you will see VS Code in your browser, with the course files
-in the **Explorer** panel on the left and a terminal at the bottom.
+When it is ready you will see VS Code in your browser, with a terminal at the
+bottom and two folders in the **Explorer** panel on the left:
+
+- `ParFlow_CUAHSI_VU/`: the course materials.  Treat these as read-only, so
+  you can always get the newest versions (see below).
+- `my_work/`: your own folder.  **Do your work here.**  To work on a course
+  notebook, copy it into `my_work` first: right-click it, choose **Copy**,
+  then right-click `my_work` and choose **Paste**.
+
+To get course materials posted after you made your Codespace, open a terminal
+(**Terminal > New Terminal** from the ☰ menu) and run:
+
+```bash
+cd /workspaces/ParFlow_CUAHSI_VU && git pull
+```
+
+This only works if you have not changed files in `ParFlow_CUAHSI_VU`, which
+is why your own work goes in `my_work`.
 
 ### 2. Open a notebook
 
@@ -63,8 +79,8 @@ pressure = read_pfb("my_run.out.press.00010.pfb")
 ### 4. Save your work and stop the Codespace
 
 - **Your files stay in your Codespace** between sessions, but only there.
-  To keep a copy, right-click a file or folder in the **Explorer** panel and
-  choose **Download...**.
+  To keep a copy, right-click a file or folder (such as `my_work`) in the
+  **Explorer** panel and choose **Download...**.
 - **Stop the Codespace when you are done.**  Free GitHub accounts include a
   limited number of Codespace hours each month (students with the
   [GitHub Student Developer Pack](https://education.github.com/pack) get

@@ -27,12 +27,18 @@ RUN apt-get update && \
         python3 \
         python3-pip \
         python3-venv \
+        sudo \
         tcl-dev \
         tk-dev && \
     rm -rf /var/lib/apt/lists/*
 
 RUN getent group ubuntu >/dev/null || groupadd -g 1000 ubuntu && \
     id -u ubuntu >/dev/null 2>&1 || useradd -u 1000 -g ubuntu -m -N -s /bin/bash ubuntu
+
+# Passwordless sudo, so postCreateCommand can make my_work in the root-owned
+# /workspaces
+RUN echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu && \
+    chmod 0440 /etc/sudoers.d/ubuntu
 
 USER ubuntu
 WORKDIR /home/ubuntu/
