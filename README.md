@@ -1,7 +1,7 @@
 # ParFlow_CUAHSI_VU
 4 week ParFlow course for CUAHSI Virtual University
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/lecondon/ParFlow_CUAHSI_VU)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/hydroframe/ParFlow_CUAHSI_VU)
 
 ## Running the course in GitHub Codespaces
 
