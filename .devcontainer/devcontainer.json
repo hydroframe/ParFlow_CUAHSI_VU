@@ -4,7 +4,6 @@
         "dockerfile": "Dockerfile",
         "context": ".."
     },
-    "workspaceFolder": "/workspaces",
     "otherPortsAttributes": {
         "onAutoForward": "ignore"
     },
@@ -14,12 +13,7 @@
                 "ms-python.python",
                 "ms-python.vscode-pylance",
                 "ms-toolsai.jupyter"
-            ],
-            "settings": {
-                "files.exclude": {
-                    "**/.codespaces": true
-                }
-            }
+            ]
         }
     },
     "postCreateCommand": "sudo mkdir -p /workspaces/my_work && sudo chown ubuntu:ubuntu /workspaces/my_work && python -m ipykernel install --user --name parflow-cuahsi-vu --display-name \"Python (ParFlow)\"",

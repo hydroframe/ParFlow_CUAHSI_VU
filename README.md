@@ -24,14 +24,34 @@ your own computer.  All you need is a GitHub account and a web browser
    the start of class.  After the first launch, reopening the same Codespace
    takes under a minute.
 
-When it is ready you will see VS Code in your browser, with a terminal at the
-bottom and two folders in the **Explorer** panel on the left:
+When it is ready you will see VS Code in your browser, with the course files
+in the **Explorer** panel on the left and a terminal at the bottom.
+
+### 2. Open the course workspace (one click)
+
+A message in the bottom-right corner asks whether to open the workspace file
+`ParFlow_CUAHSI_VU.code-workspace`.  **Click Open Workspace.**  The window
+reloads, and the **Explorer** panel shows two folders:
 
 - `ParFlow_CUAHSI_VU/`: the course materials.  Treat these as read-only, so
   you can always get the newest versions (see below).
 - `my_work/`: your own folder.  **Do your work here.**  To work on a course
   notebook, copy it into `my_work` first: right-click it, choose **Copy**,
   then right-click `my_work` and choose **Paste**.
+
+**If you missed the message**, or you do not see `my_work` in the
+**Explorer**, use either of these:
+
+- In the **Explorer**, click `ParFlow_CUAHSI_VU.code-workspace` to open it,
+  then click the **Open Workspace** button in the bottom-right corner.
+- Or, in the terminal, run:
+
+  ```bash
+  code -r /workspaces/ParFlow_CUAHSI_VU/ParFlow_CUAHSI_VU.code-workspace
+  ```
+
+Check for `my_work` each time you come back to your Codespace, and repeat
+this step if it is missing.
 
 To get course materials posted after you made your Codespace, open a terminal
 (**Terminal > New Terminal** from the ☰ menu) and run:
@@ -43,7 +63,7 @@ cd /workspaces/ParFlow_CUAHSI_VU && git pull
 This only works if you have not changed files in `ParFlow_CUAHSI_VU`, which
 is why your own work goes in `my_work`.
 
-### 2. Open a notebook
+### 3. Open a notebook
 
 1. In the **Explorer** panel, click a notebook file (`.ipynb`) to open it.
    To start a new one instead, use the menu (☰, top left):
@@ -63,7 +83,7 @@ import parflow
 print(os.environ["PARFLOW_DIR"])   # should print /opt/parflow/
 ```
 
-### 3. Write output as PFB
+### 4. Write output as PFB
 
 For now, write ParFlow output as PFB files (ParFlow's own binary format),
 not NetCDF.  The ParFlow release in this Codespace has a bug that makes
@@ -76,7 +96,7 @@ from parflow.tools.io import read_pfb
 pressure = read_pfb("my_run.out.press.00010.pfb")
 ```
 
-### 4. Save your work and stop the Codespace
+### 5. Save your work and stop the Codespace
 
 - **Your files stay in your Codespace** between sessions, but only there.
   To keep a copy, right-click a file or folder (such as `my_work`) in the
