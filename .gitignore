@@ -222,3 +222,6 @@ __marimo__/
 # Students' own work (the folder itself is kept by my_work/.gitkeep)
 my_work/*
 !my_work/.gitkeep
+
+# Activity 1 simulation output
+Activity1_BoxModel/output_box/
