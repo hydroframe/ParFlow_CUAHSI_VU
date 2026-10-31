@@ -10,11 +10,11 @@ from glob import glob
 import math
 import os
 
-def plot_domain(run_directory, variable, timestep=0):
+def plot_domain(run_directory, variable, timestep=0, run_name="domain_example"):
     """Function to plot output from a ParFlow run"""
 
     # Load the run from the file, this is the same as the run defined above
-    run = Run.from_definition(os.path.join(run_directory, "domain_example.pfidb"))   
+    run = Run.from_definition(os.path.join(run_directory, f"{run_name}.pfidb"))
 
     data = run.data_accessor # get the data accessor, this makes it easier to access the data from the run
     nt = len(data.times)  # get the number of time steps
@@ -31,11 +31,11 @@ def plot_domain(run_directory, variable, timestep=0):
 
     # Load the data
     if variable == "porosity":
-        data = read_pfb(get_absolute_path(f"domain_example.out.{variable}.pfb")).reshape(nz, nx)
+        data = read_pfb(os.path.join(run_directory, f"{run_name}.out.{variable}.pfb")).reshape(nz, nx)
     elif variable == "mannings":
-        data = read_pfb(get_absolute_path(f"domain_example.out.mannings.pfb"))[0, :, :]
+        data = read_pfb(os.path.join(run_directory, f"{run_name}.out.mannings.pfb"))[0, :, :]
     else:
-        data = read_pfb(get_absolute_path(f"domain_example.out.{variable}.{str(timestep).zfill(5)}.pfb")).reshape(nz, nx)
+        data = read_pfb(os.path.join(run_directory, f"{run_name}.out.{variable}.{str(timestep).zfill(5)}.pfb")).reshape(nz, nx)
     
     # Set negative saturation values to NaN
     if variable == "satur":
@@ -96,11 +96,11 @@ def plot_domain(run_directory, variable, timestep=0):
     plt.show()
 
 
-def plot_domain_mannings(run_directory):
+def plot_domain_mannings(run_directory, run_name="domain_example"):
     """Function to plot output from a ParFlow run: Mannings"""
 
     # Load the run from the file, this is the same as the run defined above
-    run = Run.from_definition(os.path.join(run_directory, "domain_example.pfidb"))   
+    run = Run.from_definition(os.path.join(run_directory, f"{run_name}.pfidb"))   
 
     data = run.data_accessor # get the data accessor, this makes it easier to access the data from the run
     nt = len(data.times)  # get the number of time steps
@@ -116,7 +116,7 @@ def plot_domain_mannings(run_directory):
     print(f"dx = {dx}, dy = {dy}, dz = {dz}")
 
     # Load the data
-    data = read_pfb(get_absolute_path(f"domain_example.out.mannings.pfb"))[0, :, :]
+    data = read_pfb(os.path.join(run_directory, f"{run_name}.out.mannings.pfb"))[0, :, :]
     
     # Set up x and z to match the shape of the ParFlow grid
     x = np.arange(0.0,(nx+1)*dx,dx)
@@ -129,15 +129,18 @@ def plot_domain_mannings(run_directory):
     vmax = np.nanmax(data)
     print(f"vmin: {vmin}, vmax: {vmax}")
 
-    # Use pcolormesh to plot the data with the x and z coordinates with lines 
+    label = "Manning's n [h/m^(1/3)]"
+    title = "Manning's Roughness"
+
+    # Use pcolormesh to plot the data with the x and y coordinates with lines 
     # for the grid mesh from the ParFlow run grid
     fig, ax = plt.subplots()
     im = ax.pcolormesh(x, y, data, vmin=vmin, vmax=vmax, cmap='plasma_r')
     plt.colorbar(im, ax=ax, label=label)
     
     # Include mesh lines
-    ax.hlines(z,x[0],x[-1],colors='white',linewidth=0.5)
-    ax.vlines(x,z[0],z[-1],colors='white',linewidth=0.5)
+    ax.hlines(y,x[0],x[-1],colors='white',linewidth=0.5)
+    ax.vlines(x,y[0],y[-1],colors='white',linewidth=0.5)
     
     ax.set_xlabel('x [m]')
     ax.set_ylabel('y [m]')
@@ -145,11 +148,11 @@ def plot_domain_mannings(run_directory):
     plt.show()
 
 
-def plot_domain_overland(run_directory, variable, timestep=0):
+def plot_domain_overland(run_directory, variable, timestep=0, run_name="overland_tiltedV"):
     """Function to plot output from a ParFlow run: Overland Flow module"""
 
     # Load the run from the file, this is the same as the run defined above
-    run = Run.from_definition(os.path.join(run_directory, "overland_tiltedV.pfidb"))   
+    run = Run.from_definition(os.path.join(run_directory, f"{run_name}.pfidb"))   
 
     data = run.data_accessor # get the data accessor, this makes it easier to access the data from the run
     nt = len(data.times)  # get the number of time steps
@@ -165,7 +168,7 @@ def plot_domain_overland(run_directory, variable, timestep=0):
     print(f"dx = {dx}, dy = {dy}, dz = {dz}")
 
     # Load the data
-    data = read_pfb(get_absolute_path(f"overland_tiltedV.out.{variable}.{str(timestep).zfill(5)}.pfb"))[0, :, :]
+    data = read_pfb(os.path.join(run_directory, f"{run_name}.out.{variable}.{str(timestep).zfill(5)}.pfb"))[0, :, :]
     
     # Set negative saturation values to NaN
     if variable == "satur":
@@ -205,11 +208,11 @@ def plot_domain_overland(run_directory, variable, timestep=0):
     ax.set_title(f"{title} at t={timestep}")
     plt.show()
     
-def plot_subsurface_storage(run_directory, subset_slice=None):
+def plot_subsurface_storage(run_directory, subset_slice=None, run_name="domain_example"):
     """Function to plot total subsurface storage over time based on a ParFlow run"""
     
     # Load the run from the file, this is the same as the run defined above
-    run = Run.from_definition(os.path.join(run_directory, "domain_example.pfidb"))   
+    run = Run.from_definition(os.path.join(run_directory, f"{run_name}.pfidb"))   
 
     data = run.data_accessor # get the data accessor, this makes it easier to access the data from the run
     nt = len(data.times)  # get the number of time steps
@@ -235,8 +238,8 @@ def plot_subsurface_storage(run_directory, subset_slice=None):
     # Initialize empty array
     subsurface_storage = np.zeros(nt)
     
-    press_files = sorted(glob(f'{run_directory}/domain_example.out.press*.pfb'))
-    satur_files = sorted(glob(f'{run_directory}/domain_example.out.satur*.pfb'))
+    press_files = sorted(glob(f'{run_directory}/{run_name}.out.press*.pfb'))
+    satur_files = sorted(glob(f'{run_directory}/{run_name}.out.satur*.pfb'))
         
     # Iteratively calculate overland flow for whole domain
     for hour in range(0, nt): 
@@ -254,11 +257,11 @@ def plot_subsurface_storage(run_directory, subset_slice=None):
     plt.title(f"Subsurface Storage over Time")
     plt.show()
 
-def plot_streamflow(run_directory, grid_cell=None):
+def plot_streamflow(run_directory, grid_cell=None, run_name="overland_tiltedV"):
     """Function to plot a hydrograph for a single grid cell location based on a ParFlow run"""
     
     # Load the run from the file, this is the same as the run defined above
-    run = Run.from_definition(os.path.join(run_directory, "overland_tiltedV.pfidb"))   
+    run = Run.from_definition(os.path.join(run_directory, f"{run_name}.pfidb"))   
 
     data = run.data_accessor # get the data accessor, this makes it easier to access the data from the run
     nt = len(data.times)  # get the number of time steps
@@ -275,9 +278,9 @@ def plot_streamflow(run_directory, grid_cell=None):
     # Initialize empty array
     olf = np.zeros((nt, ny, nx))
     
-    press_files = sorted(glob(f'{run_directory}/overland_tiltedV.out.press*.pfb'))
-    satur_files = sorted(glob(f'{run_directory}/overland_tiltedV.out.satur*.pfb'))
-    mannings = (read_pfb(f"{run_directory}/overland_tiltedV.out.mannings.pfb")).squeeze()
+    press_files = sorted(glob(f'{run_directory}/{run_name}.out.press*.pfb'))
+    satur_files = sorted(glob(f'{run_directory}/{run_name}.out.satur*.pfb'))
+    mannings = (read_pfb(f"{run_directory}/{run_name}.out.mannings.pfb")).squeeze()
 
     # Iteratively calculate overland flow for whole domain
     for hour in range(0, nt):        
