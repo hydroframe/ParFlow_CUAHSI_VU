@@ -10,7 +10,19 @@ from glob import glob
 import math
 import os
 
-def plot_domain(run_directory, variable, timestep=0, run_name="domain_example"):
+def get_layer_dz(run, data):
+    """Return per-layer thickness (DZ x dzScale) so variable layer spacing is respected."""
+    dz = np.array(data.dz, dtype=float)
+    if dz.ndim == 0:
+        dz = np.full(data.shape[0], float(dz))
+    keys = run.to_dict()
+    for k in range(len(dz)):
+        scale = keys.get(f"Cell.{k}.dzScale.Value")
+        if scale is not None:
+            dz[k] = run.ComputationalGrid.DZ * scale
+    return dz
+
+def plot_domain(run_directory, variable, timestep=0, run_name="domain_example", ax=None):
     """Function to plot output from a ParFlow run"""
 
     # Load the run from the file, this is the same as the run defined above
@@ -23,7 +35,7 @@ def plot_domain(run_directory, variable, timestep=0, run_name="domain_example"):
     nz = data.shape[0]    # get the number of cells in the z direction
     dx = data.dx          # get the cell size in the x direction
     dy = data.dy          # get the cell size in the y direction
-    dz = data.dz          # get the cell size in the z direction, this is a 1D array of size nz
+    dz = get_layer_dz(run, data)          # get the cell size in the z direction, this is a 1D array of size nz (DZ x dzScale)
 
     # Print a summary of the run data
     print(f"nx = {nx}, ny = {ny}, nz = {nz}, nt = {nt}")
@@ -68,7 +80,9 @@ def plot_domain(run_directory, variable, timestep=0, run_name="domain_example"):
 
     # Use pcolormesh to plot the data with the x and z coordinates with lines 
     # for the grid mesh from the ParFlow run grid
-    fig, ax = plt.subplots()
+    show_figure = ax is None
+    if show_figure:
+        fig, ax = plt.subplots()
 
     if variable == "mannings":
         im = ax.pcolormesh(x, y, data, vmin=vmin, vmax=vmax, cmap='plasma_r')
@@ -93,7 +107,8 @@ def plot_domain(run_directory, variable, timestep=0, run_name="domain_example"):
         ax.set_title(f"{title}")
     else:
         ax.set_title(f"{title} at t={timestep}")
-    plt.show()
+    if show_figure:
+        plt.show()
 
 
 def plot_domain_mannings(run_directory, run_name="domain_example"):
@@ -109,7 +124,7 @@ def plot_domain_mannings(run_directory, run_name="domain_example"):
     nz = data.shape[0]    # get the number of cells in the z direction
     dx = data.dx          # get the cell size in the x direction
     dy = data.dy          # get the cell size in the y direction
-    dz = data.dz          # get the cell size in the z direction, this is a 1D array of size nz
+    dz = get_layer_dz(run, data)          # get the cell size in the z direction, this is a 1D array of size nz (DZ x dzScale)
 
     # Print a summary of the run data
     print(f"nx = {nx}, ny = {ny}, nz = {nz}, nt = {nt}")
@@ -161,7 +176,7 @@ def plot_domain_overland(run_directory, variable, timestep=0, run_name="overland
     nz = data.shape[0]    # get the number of cells in the z direction
     dx = data.dx          # get the cell size in the x direction
     dy = data.dy          # get the cell size in the y direction
-    dz = data.dz          # get the cell size in the z direction, this is a 1D array of size nz
+    dz = get_layer_dz(run, data)          # get the cell size in the z direction, this is a 1D array of size nz (DZ x dzScale)
 
     # Print a summary of the run data
     print(f"nx = {nx}, ny = {ny}, nz = {nz}, nt = {nt}")
@@ -221,7 +236,7 @@ def plot_subsurface_storage(run_directory, subset_slice=None, run_name="domain_e
     nz = data.shape[0]    # get the number of cells in the z direction
     dx = data.dx          # get the cell size in the x direction
     dy = data.dy          # get the cell size in the y direction
-    dz = data.dz          # get the cell size in the z direction, this is a 1D array of size n
+    dz = get_layer_dz(run, data)          # get the cell size in the z direction, this is a 1D array of size n (DZ x dzScale)
 
     if subset_slice is None:
         subset_array = (slice(0, nz), slice(0, ny), slice(0, nx))
@@ -270,7 +285,7 @@ def plot_streamflow(run_directory, grid_cell=None, run_name="overland_tiltedV"):
     nz = data.shape[0]    # get the number of cells in the z direction
     dx = data.dx          # get the cell size in the x direction
     dy = data.dy          # get the cell size in the y direction
-    dz = data.dz          # get the cell size in the z direction, this is a 1D array of size nz
+    dz = get_layer_dz(run, data)          # get the cell size in the z direction, this is a 1D array of size nz (DZ x dzScale)
     mask = data.mask
     slopex = (data.slope_x).squeeze()
     slopey = (data.slope_y).squeeze()
@@ -315,14 +330,43 @@ def plot_water_balance(run_directory, run_name):
     nz = data.shape[0]    # get the number of cells in the z direction
     dx = data.dx          # get the cell size in the x direction
     dy = data.dy          # get the cell size in the y direction
-    dz = data.dz          # get the cell size in the z direction, this is a 1D array of size nz
+    dz = get_layer_dz(run, data)          # get the cell size in the z direction, this is a 1D array of size nz (DZ x dzScale)
     mask = data.mask
     surface_mask = mask[-1, :, :].astype(int)
     porosity = data.computed_porosity
     specific_storage = data.specific_storage
-    mannings = data.mannings
-    slopex = data.slope_x 
-    slopey = data.slope_y 
+    keys = run.to_dict()
+    has_clm = bool(keys.get("Solver.PrintCLM")) or bool(keys.get("Solver.WriteCLMBinary"))
+
+    def _output_or_constant(prop, key):
+        # Use the written output if it exists, otherwise build the array from the constant in the run definition
+        try:
+            return getattr(data, prop)
+        except FileNotFoundError:
+            return np.full((1, ny, nx), float(keys[key]))
+
+    mannings = _output_or_constant("mannings", "Mannings.Geom.domain.Value")
+    slopex = _output_or_constant("slope_x", "TopoSlopesX.Geom.domain.Value")
+    slopey = _output_or_constant("slope_y", "TopoSlopesY.Geom.domain.Value")
+
+    def _top_flux(time):
+        """Top boundary flux [L/T] at a given time, following the patch's cycle."""
+        cycle = keys["Patch.z_upper.BCPressure.Cycle"]
+        names = keys[f"Cycle.{cycle}.Names"].split()
+        lengths = [keys[f"Cycle.{cycle}.{n}.Length"] for n in names]
+        repeat = keys.get(f"Cycle.{cycle}.Repeat", -1)
+        total = sum(lengths)
+        if repeat == -1:
+            time = time % total
+        elif time >= total * repeat:
+            return 0.0
+        else:
+            time = time % total
+        for n, length in zip(names, lengths):
+            if time < length:
+                return keys[f"Patch.z_upper.BCPressure.{n}.Value"]
+            time -= length
+        return 0.0
 
     surface_storage = np.zeros(nt)
     subsurface_storage = np.zeros(nt)
@@ -344,12 +388,10 @@ def plot_water_balance(run_directory, run_name):
         surface_storage[t] = np.sum(hydro.calculate_surface_storage(pressure, dx, dy, mask=mask), axis=(0,1))
         overland_out[t] = hydro.calculate_overland_flow(pressure, slopex, slopey, mannings, dx, dy, mask=mask)
 
-        #generate array of rainfall from ParFlow keys
-        # if (t <= run.Cycle.rainrec.r0.Length):
-        #     precip[t]=-(run.Patch.z_upper.BCPressure.r0.Value)*(nx*dx)*(ny*dy)*run.TimeStep.Value  #  m/h over domain
-        precip[t] = 0.01 * (nx*dx)*(ny*dy) * run.TimeStep.Value
+        # Precipitation from the z_upper flux in the run definition (negative flux = water in)
+        precip[t] = -_top_flux(t * run.TimeStep.Value) * (nx*dx)*(ny*dy) * run.TimeStep.Value
         
-        if t > 0: 
+        if t > 0 and has_clm:
             data.forcing_time = t-1
             # precip[t] = np.sum(data.clm_forcing('APCP')[surface_mask==1])*(3600/1000)*(dx)*(dy)
             et[t]  = np.sum(data.clm_output('qflx_evap_tot')[surface_mask==1])*(3600/1000)*(dx)*(dy)

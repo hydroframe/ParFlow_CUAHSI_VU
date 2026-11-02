@@ -1,5 +1,5 @@
 # ParFlow_CUAHSI_VU
-4 week ParFlow course for CUAHSI Virtual University
+Material for a four week ParFlow course for CUAHSI Virtual University taught November 2026.  This repo contains all of the hands on activities used for the course. 
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/hydroframe/ParFlow_CUAHSI_VU)
 
@@ -44,40 +44,7 @@ cd /workspaces/ParFlow_CUAHSI_VU && git pull
 This only works if you have not changed the course files, which is why your
 own work goes in `my_work`.
 
-### 2. Open a notebook
-
-1. In the **Explorer** panel, click a notebook file (`.ipynb`) to open it.
-   To start a new one instead, use the menu (☰, top left):
-   **File > New File... > Jupyter Notebook**.
-2. Click **Select Kernel** in the top-right corner of the notebook.
-3. Choose **Jupyter Kernel...**, then **Python (ParFlow)**.  If it is not in
-   the list, choose **Python Environments...** and pick the one in
-   `~/.venv`.  It is the same Python.
-4. Run a cell with **Shift+Enter**, or run the whole notebook with
-   **Run All** at the top.
-
-To check that everything works, run this in a cell:
-
-```python
-import os
-import parflow
-print(os.environ["PARFLOW_DIR"])   # should print /opt/parflow/
-```
-
-### 3. Write output as PFB
-
-For now, write ParFlow output as PFB files (ParFlow's own binary format),
-not NetCDF.  The ParFlow release in this Codespace has a bug that makes
-NetCDF output very slow on Codespaces (ParFlow pull request #779, not yet
-released).  PFB is the default, so leave the `NetCDF.*` keys off.  You can
-read a PFB file into a NumPy array with:
-
-```python
-from parflow.tools.io import read_pfb
-pressure = read_pfb("my_run.out.press.00010.pfb")
-```
-
-### 4. Save your work and stop the Codespace
+### 4. Saving your work and stoping the codespace
 
 - **Your files stay in your Codespace** between sessions, but only there.
   To keep a copy, right-click a file or folder (such as `my_work`) in the
@@ -96,7 +63,6 @@ pressure = read_pfb("my_run.out.press.00010.pfb")
   any files in it you have not downloaded.
 
 ### What is installed
-
 - ParFlow v3.15.0 (the latest release) with CLM, Hypre, HDF5 and NetCDF,
   installed in `/opt/parflow` (`$PARFLOW_DIR`)
 - Python with `pftools`, `subsettools`, `hf_hydrodata`, `numpy`, `pandas`,
