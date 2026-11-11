@@ -11,15 +11,16 @@ import math
 import os
 
 def get_layer_dz(run, data):
-    """Return per-layer thickness (DZ x dzScale) so variable layer spacing is respected."""
+    """Return per-layer thickness, applying dzScale only for variable dz runs."""
     dz = np.array(data.dz, dtype=float)
     if dz.ndim == 0:
         dz = np.full(data.shape[0], float(dz))
-    keys = run.to_dict()
-    for k in range(len(dz)):
-        scale = keys.get(f"Cell.{k}.dzScale.Value")
-        if scale is not None:
-            dz[k] = run.ComputationalGrid.DZ * scale
+    if run.Solver.Nonlinear.VariableDz:
+        keys = run.to_dict()
+        for k in range(len(dz)):
+            scale = keys.get(f"Cell.{k}.dzScale.Value")
+            if scale is not None:
+                dz[k] = run.ComputationalGrid.DZ * scale
     return dz
 
 def plot_domain(run_directory, variable, timestep=0, run_name="domain_example", ax=None):
@@ -35,7 +36,7 @@ def plot_domain(run_directory, variable, timestep=0, run_name="domain_example", 
     nz = data.shape[0]    # get the number of cells in the z direction
     dx = data.dx          # get the cell size in the x direction
     dy = data.dy          # get the cell size in the y direction
-    dz = get_layer_dz(run, data)          # get the cell size in the z direction, this is a 1D array of size nz (DZ x dzScale)
+    dz = get_layer_dz(run, data)          # get the per-layer cell size in the z direction
 
     # Print a summary of the run data
     print(f"nx = {nx}, ny = {ny}, nz = {nz}, nt = {nt}")
